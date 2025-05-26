@@ -1,15 +1,17 @@
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
   Image,
+  Platform,
   SafeAreaView,
+  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
-  ScrollView,
 } from 'react-native';
 
 const SignupScreen = () => {
@@ -21,6 +23,8 @@ const SignupScreen = () => {
     password: '',
     confirmPassword: '',
   });
+
+  const [focusedInput, setFocusedInput] = useState<string | null>(null);
 
   const handleInputChange = (field: string, value: string) => {
     setForm({ ...form, [field]: value });
@@ -34,9 +38,23 @@ const SignupScreen = () => {
     router.push('/log-in');
   };
 
+  const handleBack = () => {
+    router.back();
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#E5E7EB" />
+      
+      {/* Back Button */}
+      <TouchableOpacity 
+        style={styles.backButton} 
+        onPress={handleBack}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      >
+        <Ionicons name="arrow-back" size={24} color="#1F2937" />
+      </TouchableOpacity>
+
       <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
         <View style={styles.container}>
           {/* Logo */}
@@ -50,7 +68,11 @@ const SignupScreen = () => {
           {['firstName', 'lastName', 'university', 'email', 'password', 'confirmPassword'].map((field, index) => (
             <TextInput
               key={index}
-              style={styles.input}
+              style={[
+                styles.input,
+                styles.fontRegular,
+                focusedInput === field && styles.inputFocused
+              ]}
               placeholder={field.replace(/([A-Z])/g, ' $1').toLowerCase()}
               placeholderTextColor="#9CA3AF"
               secureTextEntry={field.toLowerCase().includes('password')}
@@ -58,19 +80,21 @@ const SignupScreen = () => {
               autoCorrect={false}
               value={form[field as keyof typeof form]}
               onChangeText={(text) => handleInputChange(field, text)}
+              onFocus={() => setFocusedInput(field)}
+              onBlur={() => setFocusedInput(null)}
             />
           ))}
 
           {/* Signup Button */}
           <TouchableOpacity style={styles.signupButton} onPress={handleSignup}>
-            <Text style={styles.signupButtonText}>create account</Text>
+            <Text style={[styles.signupButtonText, styles.fontSemiBold]}>create account</Text>
           </TouchableOpacity>
 
           {/* Footer */}
           <View style={styles.loginRedirect}>
-            <Text style={styles.loginText}>Already have an account? </Text>
+            <Text style={[styles.loginText, styles.fontRegular]}>Already have an account? </Text>
             <TouchableOpacity onPress={handleLoginRedirect}>
-              <Text style={styles.loginLink}>Log In</Text>
+              <Text style={[styles.loginLink, styles.fontSemiBold]}>Log In</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -82,7 +106,7 @@ const SignupScreen = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#E5E7EB', // light gray background
+    backgroundColor: '#F8F9FA', // Changed from #E5E7EB to match login
   },
   scrollContainer: {
     flexGrow: 1,
@@ -93,19 +117,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logo: {
-    width: 200,
-    height: 80,
+    width: 300,
+    height: 120,
     marginBottom: 24,
   },
   input: {
     width: '100%',
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingHorizontal: 20, // Changed from 16 to match login
+    paddingVertical: 16, // Changed from 14 to match login
     fontSize: 16,
-    color: '#111827',
-    marginBottom: 12,
+    color: '#1F2937', // Changed from #111827 to match login
+    marginBottom: 16, // Changed from 12 to match login
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
@@ -114,7 +138,7 @@ const styles = StyleSheet.create({
   },
   signupButton: {
     width: '100%',
-    backgroundColor: '#8B5CF6',
+    backgroundColor: '#5E17EA',
     paddingVertical: 14,
     borderRadius: 12,
     alignItems: 'center',
@@ -142,9 +166,27 @@ const styles = StyleSheet.create({
   },
   loginLink: {
     fontSize: 14,
-    color: '#8B5CF6',
+    color: '#5E17EA',
     fontWeight: '600',
     marginLeft: 4,
+  },
+  fontRegular: {
+    fontFamily: 'Montserrat_400Regular',
+  },
+  fontSemiBold: {
+    fontFamily: 'Montserrat_600SemiBold',
+  },
+  inputFocused: {
+    backgroundColor: '#F3E8FF',
+    borderWidth: 1,
+    borderColor: '#8B5CF6',
+  },
+  backButton: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 50 : 40,
+    left: 20,
+    zIndex: 10,
+    padding: 8,
   },
 });
 

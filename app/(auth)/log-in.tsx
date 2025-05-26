@@ -1,25 +1,27 @@
+import {
+  Montserrat_400Regular,
+  Montserrat_600SemiBold,
+  useFonts,
+} from '@expo-google-fonts/montserrat';
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  View,
+  Image,
+  Platform,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  SafeAreaView,
-  StatusBar,
-  Image,
+  View,
 } from 'react-native';
-import {
-  useFonts,
-  Montserrat_400Regular,
-  Montserrat_600SemiBold,
-} from '@expo-google-fonts/montserrat';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
+  const [focusedInput, setFocusedInput] = useState<string | null>(null);
   const [fontsLoaded] = useFonts({
     Montserrat_400Regular,
     Montserrat_600SemiBold,
@@ -38,11 +40,24 @@ const LoginScreen = () => {
     console.log('Sign up pressed');
   };
 
+  const handleBack = () => {
+    router.back();
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#F8F9FA" />
 
       <View style={styles.backgroundPattern} />
+
+      {/* Back Button */}
+      <TouchableOpacity 
+        style={styles.backButton} 
+        onPress={handleBack}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      >
+        <Ionicons name="arrow-back" size={24} color="#1F2937" />
+      </TouchableOpacity>
 
       <View style={styles.content}>
         {/* Logo Image */}
@@ -57,7 +72,7 @@ const LoginScreen = () => {
         {/* Form */}
         <View style={styles.formContainer}>
           <TextInput
-            style={[styles.input, styles.fontRegular]}
+            style={[styles.input, styles.fontRegular, focusedInput === 'email' && styles.inputFocused]}
             placeholder="university email"
             placeholderTextColor="#9CA3AF"
             value={email}
@@ -65,10 +80,12 @@ const LoginScreen = () => {
             keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
+            onFocus={() => setFocusedInput('email')}
+            onBlur={() => setFocusedInput(null)}
           />
 
           <TextInput
-            style={[styles.input, styles.fontRegular]}
+            style={[styles.input, styles.fontRegular, focusedInput === 'password' && styles.inputFocused]}
             placeholder="password"
             placeholderTextColor="#9CA3AF"
             value={password}
@@ -76,6 +93,8 @@ const LoginScreen = () => {
             secureTextEntry
             autoCapitalize="none"
             autoCorrect={false}
+            onFocus={() => setFocusedInput('password')}
+            onBlur={() => setFocusedInput(null)}
           />
 
           <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
@@ -136,20 +155,21 @@ const styles = StyleSheet.create({
   loginButton: {
     backgroundColor: '#5E17EA',
     borderRadius: 12,
-    paddingVertical: 16,
+    paddingVertical: 14,
     alignItems: 'center',
     marginTop: 8,
     marginBottom: 24,
     shadowColor: '#8B5CF6',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowRadius: 6,
     elevation: 4,
   },
   loginButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
-    letterSpacing: 0.5,
+    fontWeight: '600',
+    textTransform: 'capitalize',
   },
   signUpContainer: {
     flexDirection: 'row',
@@ -170,6 +190,18 @@ const styles = StyleSheet.create({
   },
   fontSemiBold: {
     fontFamily: 'Montserrat_600SemiBold',
+  },
+  inputFocused: {
+    backgroundColor: '#F3E8FF',
+    borderWidth: 1,
+    borderColor: '#8B5CF6',
+  },
+  backButton: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 50 : 40,
+    left: 20,
+    zIndex: 10,
+    padding: 8,
   },
 });
 
