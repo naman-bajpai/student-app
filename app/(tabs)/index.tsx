@@ -101,7 +101,7 @@ export default function Index() {
           onPress={handleSignUp}
           className="bg-[#5e17eb] py-4 rounded-2xl shadow-md shadow-purple-500/30"
         >
-          <Text style={{ fontFamily: 'Poppins_600SemiBold' }} className="text-white text-lg text-center">
+          <Text style={{ fontFamily: 'Poppins_600SemiBold' }} className="text-white text-lg text-center font-bold">
             Sign Up
           </Text>
         </TouchableOpacity>
@@ -109,7 +109,7 @@ export default function Index() {
           onPress={handleLogin}
           className="py-3 rounded-xl border border-[#5e17eb]"
         >
-          <Text style={{ fontFamily: 'Poppins_400Regular' }} className="text-[#5e17eb] text-base text-center">
+          <Text style={{ fontFamily: 'Poppins_400Regular' }} className="text-[#5e17eb] text-base text-center font-bold">
             Log In
           </Text>
         </TouchableOpacity>

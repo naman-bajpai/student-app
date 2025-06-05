@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
+import { supabase } from '@/lib/supabase';
 import {
   Image,
   Platform,
@@ -23,16 +24,60 @@ const SignupScreen = () => {
     password: '',
     confirmPassword: '',
   });
-
+  const [loading, setLoading] = useState(false);
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
 
   const handleInputChange = (field: string, value: string) => {
     setForm({ ...form, [field]: value });
   };
 
-  const handleSignup = () => {
-    console.log('Create account pressed', form);
+  const handleSignup = async () => {
+    const { firstName, lastName, university, email, password, confirmPassword } = form;
+  
+    // Basic validation
+    if (!firstName || !lastName || !university || !email || !password || !confirmPassword) {
+      alert('Please fill out all fields.');
+      return;
+    }
+  
+    if (password !== confirmPassword) {
+      alert('Passwords do not match.');
+      return;
+    }
+  
+    setLoading(true);
+  
+    try {
+      // Create user in Supabase Auth
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            firstName,
+            lastName,
+            university,
+          },
+        },
+      });
+  
+      if (error) {
+        alert(error.message);
+        setLoading(false);
+        return;
+      }
+  
+      // Optional: Navigate or show verification message
+      alert('Account created! Please verify your email before logging in.');
+      router.push('/log-in');
+    } catch (err) {
+      console.error('Signup error:', err);
+      alert('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
+  
 
   const handleLoginRedirect = () => {
     router.push('/log-in');
@@ -86,8 +131,14 @@ const SignupScreen = () => {
           ))}
 
           {/* Signup Button */}
-          <TouchableOpacity style={styles.signupButton} onPress={handleSignup}>
-            <Text style={[styles.signupButtonText, styles.fontSemiBold]}>create account</Text>
+          <TouchableOpacity 
+            style={[styles.signupButton, loading && styles.signupButtonDisabled]} 
+            onPress={handleSignup}
+            disabled={loading}
+          >
+            <Text style={[styles.signupButtonText, styles.fontSemiBold]}>
+              {loading ? 'Creating Account...' : 'create account'}
+            </Text>
           </TouchableOpacity>
 
           {/* Footer */}
@@ -187,6 +238,9 @@ const styles = StyleSheet.create({
     left: 20,
     zIndex: 10,
     padding: 8,
+  },
+  signupButtonDisabled: {
+    opacity: 0.7,
   },
 });
 

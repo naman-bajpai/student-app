@@ -5,6 +5,7 @@ import {
 } from '@expo-google-fonts/montserrat';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { supabase } from '@/lib/supabase';
 import React, { useState } from 'react';
 import {
   Image,
@@ -31,8 +32,31 @@ const LoginScreen = () => {
     return null; // or <AppLoading />
   }
 
-  const handleLogin = () => {
-    console.log('Login pressed', { email, password });
+ 
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      alert('Please enter both email and password.');
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        alert(error.message);
+        return;
+      }
+
+      alert('Login successful!');
+      router.push('/'); // Replace with your main screen route
+    } catch (err) {
+      console.error('Login error:', err);
+      alert('Login failed. Please try again.');
+    }
   };
 
   const handleSignUp = () => {
@@ -51,8 +75,8 @@ const LoginScreen = () => {
       <View style={styles.backgroundPattern} />
 
       {/* Back Button */}
-      <TouchableOpacity 
-        style={styles.backButton} 
+      <TouchableOpacity
+        style={styles.backButton}
         onPress={handleBack}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
