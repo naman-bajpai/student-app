@@ -29,7 +29,7 @@ const LoginScreen = () => {
   });
 
   if (!fontsLoaded) {
-    return null; // or <AppLoading />
+    return null; 
   }
 
  
@@ -52,7 +52,7 @@ const LoginScreen = () => {
       }
 
       alert('Login successful!');
-      router.push('/'); // Replace with your main screen route
+      router.push('/profile'); 
     } catch (err) {
       console.error('Login error:', err);
       alert('Login failed. Please try again.');

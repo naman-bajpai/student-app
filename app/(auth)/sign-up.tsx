@@ -1,7 +1,8 @@
+import { supabase } from '@/lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
+import { Picker } from '@react-native-picker/picker';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { supabase } from '@/lib/supabase';
 import {
   Image,
   Platform,
@@ -33,22 +34,20 @@ const SignupScreen = () => {
 
   const handleSignup = async () => {
     const { firstName, lastName, university, email, password, confirmPassword } = form;
-  
-    // Basic validation
+
     if (!firstName || !lastName || !university || !email || !password || !confirmPassword) {
       alert('Please fill out all fields.');
       return;
     }
-  
+
     if (password !== confirmPassword) {
       alert('Passwords do not match.');
       return;
     }
-  
+
     setLoading(true);
-  
+
     try {
-      // Create user in Supabase Auth
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -60,14 +59,13 @@ const SignupScreen = () => {
           },
         },
       });
-  
+
       if (error) {
         alert(error.message);
         setLoading(false);
         return;
       }
-  
-      // Optional: Navigate or show verification message
+
       alert('Account created! Please verify your email before logging in.');
       router.push('/log-in');
     } catch (err) {
@@ -77,7 +75,6 @@ const SignupScreen = () => {
       setLoading(false);
     }
   };
-  
 
   const handleLoginRedirect = () => {
     router.push('/log-in');
@@ -90,10 +87,10 @@ const SignupScreen = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#E5E7EB" />
-      
+
       {/* Back Button */}
-      <TouchableOpacity 
-        style={styles.backButton} 
+      <TouchableOpacity
+        style={styles.backButton}
         onPress={handleBack}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
@@ -109,8 +106,8 @@ const SignupScreen = () => {
             resizeMode="contain"
           />
 
-          {/* Form */}
-          {['firstName', 'lastName', 'university', 'email', 'password', 'confirmPassword'].map((field, index) => (
+          {/* Inputs except university */}
+          {['firstName', 'lastName', 'email', 'password', 'confirmPassword'].map((field, index) => (
             <TextInput
               key={index}
               style={[
@@ -130,9 +127,46 @@ const SignupScreen = () => {
             />
           ))}
 
+          {/* University dropdown */}
+          <View
+            style={[
+              styles.input,
+              focusedInput === 'university' && styles.inputFocused,
+              { paddingHorizontal: 0, paddingVertical: 0 }
+            ]}
+          >
+            <Picker
+              selectedValue={form.university}
+              onValueChange={(itemValue) => handleInputChange('university', itemValue)}
+              onFocus={() => setFocusedInput('university')}
+              onBlur={() => setFocusedInput(null)}
+              dropdownIconColor="#9CA3AF"
+              style={{
+                color: form.university ? '#1F2937' : '#9CA3AF',
+                width: '100%',
+                height: 48,
+                paddingHorizontal: 20,
+                margin: 0,
+                ...Platform.select({
+                  ios: {
+                    marginTop: -8,
+                  },
+                  android: {
+                    marginTop: -8,
+                  }
+                })
+              }}
+              prompt="Select your university"
+            >
+              <Picker.Item label="Select your university" value="" color="#9CA3AF" />
+              <Picker.Item label="Florida State University" value="Florida State University" color="#1F2937" />
+              <Picker.Item label="University of Florida" value="University of Florida" color="#1F2937" />
+            </Picker>
+          </View>
+
           {/* Signup Button */}
-          <TouchableOpacity 
-            style={[styles.signupButton, loading && styles.signupButtonDisabled]} 
+          <TouchableOpacity
+            style={[styles.signupButton, loading && styles.signupButtonDisabled]}
             onPress={handleSignup}
             disabled={loading}
           >
